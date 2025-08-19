@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import express from 'express'
-import { CONNECT_DB, GET_DB } from './config/mongodb'
+import exitHook from 'async-exit-hook'
+import { CONNECT_DB, GET_DB, CLOSE_DB } from './config/mongodb'
 
 const startServer = () => {
   const app = express()
@@ -11,12 +12,18 @@ const startServer = () => {
     res.send('<h1>Hello World!</h1><hr>')
   })
   app.listen(port, hostname, () => {
-    console.log(`Server is running successfully at Host: ${hostname} and Port:${port}`)
+    console.log(`3.Server is running successfully at Host: ${hostname} and Port:${port}`)
+  })
+  // Thực hiện các tác vụ cleanup trước khi dừng Server
+  exitHook(() => {
+    console.log('4.Disconnecting from MongoDB Cloud Atlas...')
+    CLOSE_DB()
+    console.log('5.Disconnected from MongoDB Cloud Atlas')
   })
 }
-console.log('Connecting to MongoDB Cloud Atlas!...')
+console.log('1.Connecting to MongoDB Cloud Atlas!...')
 CONNECT_DB()
-  .then(() => console.log('Connected to MongoDB Cloud Atlas!'))
+  .then(() => console.log('2.Connected to MongoDB Cloud Atlas!'))
   .then(() => startServer())
   .catch(error => {
     console.log(error)
